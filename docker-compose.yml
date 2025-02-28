@@ -1,0 +1,47 @@
+version: "3.8"
+services:
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: frontend-react:latest
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    image: backend-nodejs:latest
+    depends_on:
+      - mongo
+    ports:
+      - "3001:3001"
+    networks: 
+     - app-network
+  
+  mongo:
+    build: 
+      context: ./database
+      dockerfile: Dockerfile
+    image: database-mongodb:latest
+    restart: always
+    volumes: 
+      - mongodb_data:/data/db
+    #environment: 
+    #  MONGO_INITDB_ROOT_USERNAME: username
+    #  MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - 27017:27017
+    networks: 
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes: 
+  mongodb_data:
