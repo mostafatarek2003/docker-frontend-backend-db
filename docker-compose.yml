@@ -1,38 +1,47 @@
 version: "3.8"
 services:
-  web:
-    build: ./frontend
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: frontend-react:latest
     depends_on:
-      - api
+      - backend
     ports:
       - "3000:3000"
     networks:
-      - network-backend
-  api:
-    build: ./backend
+      - app-network
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    image: backend-nodejs:latest
     depends_on:
       - mongo
     ports:
       - "3001:3001"
     networks: 
-     - network-backend
+     - app-network
   
   mongo:
-    image: mongo
+    build: 
+      context: ./database
+      dockerfile: Dockerfile
+    image: database-mongodb:latest
     restart: always
     volumes: 
       - mongodb_data:/data/db
-    environment: 
-      MONGODB_INITDB_ROOT_USERNAME: username
-      MONGODB_INITDB_ROOT_PASSWORD: password
-    # uncomment following lines to access db locally
-    # ports:
-    #   - 27017:27017
+    #environment: 
+    #  MONGO_INITDB_ROOT_USERNAME: username
+    #  MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - 27017:27017
     networks: 
-     - network-backend
+      - app-network
 
 networks:
-  network-backend:
+  app-network:
+    driver: bridge
 
 volumes: 
   mongodb_data:
